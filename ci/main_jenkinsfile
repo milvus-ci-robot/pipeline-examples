@@ -3,7 +3,10 @@ pipeline {
 
     options {
         timestamps()
-        properties([parameters([choice(choices: ['Release', 'Debug'], description: '', name: 'BUILD_TYPE')])])
+    }
+
+    parameters{
+        choice choices: ['Release', 'Debug'], description: '', name: 'BUILD_TYPE'
     }
 
     environment {
