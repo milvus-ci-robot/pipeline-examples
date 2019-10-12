@@ -1,16 +1,15 @@
 pipeline {
     agent none
 
-    properties([parameters([choice(choices: ['Release', 'Debug'], description: '', name: 'BUILD_TYPE')])])
-
     options {
         timestamps()
+        properties([parameters([choice(choices: ['Release', 'Debug'], description: '', name: 'BUILD_TYPE')])])
     }
 
     environment {
         PROJECT_NAME = "milvus"
         LOWER_BUILD_TYPE = params.BUILD_TYPE.toLowerCase()
-        SEMVER = env.BRANCH_NAME
+        SEMVER = "${env.BRANCH_NAME}"
     }
 
     stages {
