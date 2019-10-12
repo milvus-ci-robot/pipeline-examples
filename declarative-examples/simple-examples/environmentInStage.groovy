@@ -19,7 +19,6 @@ pipeline {
     stage("global") {
       steps {
         sh 'echo "FOO is $FOO and BAR is $BAR"'
-        sh 'Success!'
       }
     }
   }
