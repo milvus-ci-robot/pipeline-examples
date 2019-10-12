@@ -1,0 +1,61 @@
+pipeline {
+    agent none
+
+    properties([parameters([choice(choices: ['Release', 'Debug'], description: '', name: 'BUILD_TYPE')])])
+
+    options {
+        timestamps()
+    }
+
+    environment {
+        PROJECT_NAME = "milvus"
+        LOWER_BUILD_TYPE = params.BUILD_TYPE.toLowerCase()
+        SEMVER = env.BRANCH_NAME
+    }
+
+    stages {
+        stage("Ubuntu 16.04") {
+            stages {
+                stage("Run Build") {
+                    agent {
+                        kubernetes {
+                            label 'build'
+                            defaultContainer 'milvus-build-env'
+                            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: milvus-build-env
+  labels:
+    app: milvus
+    componet: build-env
+spec:
+  containers:
+  - name: milvus-build-env
+    image: registry.zilliz.com/milvus/milvus-build-env:v0.5.0
+    command:
+    - cat
+    tty: true
+    resources:
+      limits:
+        memory: "32Gi"
+        cpu: "8.0"
+        nvidia.com/gpu: 1
+      requests:
+        memory: "16Gi"
+        cpu: "4.0"
+"""
+                        }
+                    }
+                    stages {
+                        stage('Build') {
+                            steps {
+                                sh 'echo "TO DO BUILD"'
+                           }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
