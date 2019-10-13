@@ -49,6 +49,7 @@ pipeline {
                         stage('Publish Docker') {
                             steps {
                                 sh 'echo "Publish Docker"'
+                                sh("printenv")
                             }
                         }
                     }
