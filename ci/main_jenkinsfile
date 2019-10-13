@@ -12,7 +12,7 @@ pipeline {
     environment {
         PROJECT_NAME = "milvus"
         LOWER_BUILD_TYPE = params.BUILD_TYPE.toLowerCase()
-        SEMVER = "${env.BRANCH_NAME}"
+        SEMVER = "${env.GIT_BRANCH != null ? env.GIT_BRANCH : env.CHANGE_BRANCH}"
     }
 
     stages {
@@ -48,6 +48,7 @@ pipeline {
                             steps {
                                 sh 'echo "Publish Docker"'
                                 sh("printenv")
+                                sh 'cat ci/main_jenkinsfile'
                             }
                         }
                     }
