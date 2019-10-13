@@ -12,7 +12,7 @@ pipeline {
     environment {
         PROJECT_NAME = "milvus"
         LOWER_BUILD_TYPE = params.BUILD_TYPE.toLowerCase()
-        SEMVER = "${env.BRANCH_NAME}"
+        SEMVER = "${env.GIT_BRANCH != null ? env.GIT_BRANCH : env.CHANGE_BRANCH}"
     }
 
     stages {
@@ -29,9 +29,7 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'echo "PROJECT_NAME: ${PROJECT_NAME}"'
-                                sh 'echo "LOWER_BUILD_TYPE: ${LOWER_BUILD_TYPE}"'
-                                sh 'echo "SEMVER: ${SEMVER}"'
+                                sh 'echo "Build"'
                            }
                         }
                     }
@@ -50,6 +48,7 @@ pipeline {
                             steps {
                                 sh 'echo "Publish Docker"'
                                 sh("printenv")
+                                sh 'cat ci/main_jenkinsfile'
                             }
                         }
                     }
