@@ -12,7 +12,6 @@ pipeline {
     environment {
         PROJECT_NAME = "milvus"
         LOWER_BUILD_TYPE = params.BUILD_TYPE.toLowerCase()
-        SEMVER = "${env.GIT_BRANCH != null ? env.GIT_BRANCH : env.CHANGE_BRANCH}"
     }
 
     stages {
@@ -43,6 +42,13 @@ pipeline {
                             yamlFile 'ci/pod_containers/docker-pod.yaml'
                         }
                     }
+
+                    environment {
+                        SEMVER = "${env.GIT_BRANCH != null ? env.GIT_BRANCH : env.CHANGE_BRANCH}"
+                        SUFFIX_VERSION_NAME = "${env.GIT_BRANCH.matches("PR-(.*)") ? env.GIT_COMMIT.substring(0, 6) : null}"
+                        DOCKER_VERSION_STR = "${env.GIT_BRANCH.matches("PR-(.*)") ? "${SEMVER}-${LOWER_BUILD_TYPE}-${SUFFIX_VERSION_NAME}" : "${SEMVER}-${LOWER_BUILD_TYPE}"}" 
+                    }
+
                     stages {
                         stage('Publish Docker') {
                             steps {
