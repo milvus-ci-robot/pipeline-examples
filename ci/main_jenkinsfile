@@ -29,9 +29,7 @@ pipeline {
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'echo "PROJECT_NAME: ${PROJECT_NAME}"'
-                                sh 'echo "LOWER_BUILD_TYPE: ${LOWER_BUILD_TYPE}"'
-                                sh 'echo "SEMVER: ${SEMVER}"'
+                                sh 'echo "Build"'
                            }
                         }
                     }
