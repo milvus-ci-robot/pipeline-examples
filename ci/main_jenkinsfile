@@ -36,7 +36,25 @@ pipeline {
                         }
                     }
                 }
+
+                stage("Publish docker and helm") {
+                    agent {
+                        kubernetes {
+                            label 'publish'
+                            defaultContainer 'publish-docker'
+                            yamlFile 'ci/pod_containers/docker-pod.yaml'
+                        }
+                    }
+                    stages {
+                        stage('Publish Docker') {
+                            steps {
+                                sh 'echo "Publish Docker"'
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
+
