@@ -23,36 +23,15 @@ pipeline {
                         kubernetes {
                             label 'build'
                             defaultContainer 'milvus-build-env'
-                            yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  name: milvus-build-env
-  labels:
-    app: milvus
-    componet: build-env
-spec:
-  containers:
-  - name: milvus-build-env
-    image: registry.zilliz.com/milvus/milvus-build-env:v0.5.0
-    command:
-    - cat
-    tty: true
-    resources:
-      limits:
-        memory: "32Gi"
-        cpu: "8.0"
-        nvidia.com/gpu: 1
-      requests:
-        memory: "16Gi"
-        cpu: "4.0"
-"""
+                            yamlFile 'ci/pod_containers/milvus-build-env-pod.yaml'
                         }
                     }
                     stages {
                         stage('Build') {
                             steps {
-                                sh 'echo "TO DO BUILD"'
+                                sh 'echo "PROJECT_NAME: ${PROJECT_NAME}"'
+                                sh 'echo "LOWER_BUILD_TYPE: ${LOWER_BUILD_TYPE}"'
+                                sh 'echo "SEMVER: ${SEMVER}"'
                            }
                         }
                     }
