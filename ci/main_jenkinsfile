@@ -29,7 +29,8 @@ pipeline {
                         stage('Build') {
                             steps {
                                 sh 'echo "Build"'
-                           }
+                                sh("printenv")
+                            }
                         }
                     }
                 }
@@ -54,7 +55,6 @@ pipeline {
                             steps {
                                 sh 'echo "Publish Docker"'
                                 sh("printenv")
-                                sh 'cat ci/main_jenkinsfile'
                             }
                         }
                     }
