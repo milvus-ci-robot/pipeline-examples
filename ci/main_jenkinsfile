@@ -49,8 +49,6 @@ pipeline {
                             steps {
                                 sh 'echo "Publish Docker"'
                                 sh("printenv")
-                                def jobName = sh(script: "echo ${JOB_NAME%/}", returnStdout: true)
-                                sh "echo ${jobName}"
                             }
                         }
                     }
