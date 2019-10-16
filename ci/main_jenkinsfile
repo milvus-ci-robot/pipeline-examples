@@ -50,8 +50,8 @@ pipeline {
                                 sh 'echo "Publish Docker"'
                                 sh("printenv")
                                 script {
-                                    def pipelineName = env.JOB_NAME.split('/').get(0)
-                                    sh "echo ${pipelineName}"
+                                    def pipelineName = env.JOB_NAME.split('/')
+                                    sh "echo ${pipelineName[0]}"
                                 }
                             }
                         }
