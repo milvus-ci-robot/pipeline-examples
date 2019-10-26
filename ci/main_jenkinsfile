@@ -43,7 +43,7 @@ pipeline {
 
 boolean isTimeTriggeredBuild() {
     echo "isTimeTriggeredBuild function"
-    for (Object currentBuildCause : script.currentBuild.rawBuild.getCauses()) {
+    for (Object currentBuildCause : currentBuild.rawBuild.getCauses()) {
         return currentBuildCause.class.getName().contains('TimerTriggerCause')
     }
     return false
