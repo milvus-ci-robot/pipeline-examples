@@ -30,7 +30,12 @@ pipeline {
                             steps {
                                 sh 'echo "Build"'
                                 script {
-                                    echo "${currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size()}"
+                                    boolean isNightlyTest = isTimeTriggeredBuild()
+                                    if (isNightlyTest) {
+                                        echo "NightlyTest"
+                                    } else {
+                                        echo "Test"
+                                    }
                                 }
                             }
                         }
@@ -43,8 +48,8 @@ pipeline {
 
 boolean isTimeTriggeredBuild() {
     echo "isTimeTriggeredBuild function"
-    for (Object currentBuildCause : currentBuild.rawBuild.getCauses()) {
-        return currentBuildCause.class.getName().contains('TimerTriggerCause')
+    if (currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() != 0) {
+        return true
     }
     return false
 }
