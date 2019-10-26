@@ -29,11 +29,13 @@ pipeline {
                         stage('Build') {
                             steps {
                                 sh 'echo "Build"'
-                                boolean isNightlyTest = isTimeTriggeredBuild()
-                                if (isNightlyTest) {
-                                    sh("NightlyTest")
-                                } else {
-                                    sh("Test")
+                                script {
+                                    boolean isNightlyTest = isTimeTriggeredBuild()
+                                    if (isNightlyTest) {
+                                        sh("NightlyTest")
+                                    } else {
+                                        sh("Test")
+                                    }
                                 }
                             }
                         }
