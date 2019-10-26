@@ -30,7 +30,7 @@ pipeline {
                             steps {
                                 sh 'echo "Build"'
                                 script {
-                                    echo currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size()
+                                    echo "${currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size()}"
                                 }
                             }
                         }
