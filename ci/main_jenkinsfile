@@ -29,29 +29,11 @@ pipeline {
                         stage('Build') {
                             steps {
                                 sh 'echo "Build"'
-                                sh("printenv")
-                            }
-                        }
-                    }
-                }
-
-                stage("Publish docker and helm") {
-                    agent {
-                        kubernetes {
-                            label 'publish'
-                            defaultContainer 'publish-docker'
-                            yamlFile 'ci/pod_containers/docker-pod.yaml'
-                        }
-                    }
-
-                    stages {
-                        stage('Publish Docker') {
-                            steps {
-                                sh 'echo "Publish Docker"'
-                                sh("printenv")
-                                script {
-                                    def pipelineName = env.JOB_NAME.split('/')
-                                    sh "echo ${pipelineName[0]}"
+                                boolean isNightlyTest = isTimeTriggeredBuild()
+                                if (isNightlyTest) {
+                                    sh("NightlyTest")
+                                } else {
+                                    sh("Test")
                                 }
                             }
                         }
@@ -60,5 +42,12 @@ pipeline {
             }
         }
     }
+}
+
+boolean isTimeTriggeredBuild() {
+    for (Object currentBuildCause : script.currentBuild.rawBuild.getCauses()) {
+        return currentBuildCause.class.getName().contains('TimerTriggerCause')
+    }
+    return false
 }
 
