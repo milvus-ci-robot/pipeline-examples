@@ -1,3 +1,10 @@
+boolean isTimeTriggeredBuild() {
+    for (Object currentBuildCause : script.currentBuild.rawBuild.getCauses()) {
+        return currentBuildCause.class.getName().contains('TimerTriggerCause')
+    }
+    return false
+}
+
 pipeline {
     agent none
 
@@ -45,12 +52,5 @@ pipeline {
             }
         }
     }
-}
-
-boolean isTimeTriggeredBuild() {
-    for (Object currentBuildCause : script.currentBuild.rawBuild.getCauses()) {
-        return currentBuildCause.class.getName().contains('TimerTriggerCause')
-    }
-    return false
 }
 
