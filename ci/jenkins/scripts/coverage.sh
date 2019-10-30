@@ -8,16 +8,19 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 SCRIPTS_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
+SOURCE_DIR="${SCRIPTS_DIR}/../../../core"
 INSTALL_PREFIX="/opt/milvus"
-CMAKE_BUILD_DIR="${SCRIPTS_DIR}/../../../core/cmake_build"
 MYSQL_USER_NAME=root
 MYSQL_PASSWORD=123456
 MYSQL_HOST='127.0.0.1'
 MYSQL_PORT='3306'
 
-while getopts "o:u:p:t:h" arg
+while getopts "s:o:u:p:t:h" arg
 do
         case $arg in
+             s)
+                SOURCE_DIR=$OPTARG
+                ;;
              o)
                 INSTALL_PREFIX=$OPTARG
                 ;;
@@ -34,6 +37,7 @@ do
                 echo "
 
 parameter:
+-s: source path
 -o: milvus install prefix(default: /opt/milvus)
 -u: mysql account
 -p: mysql password
@@ -63,6 +67,12 @@ FILE_INFO_OUTPUT="output.info"
 FILE_INFO_OUTPUT_NEW="output_new.info"
 DIR_LCOV_OUTPUT="lcov_out"
 
+if [[ ! -d ${SOURCE_DIR} ]]; then
+   echo "\" ${SOURCE_DIR} \" does not exist! "
+   exit 1
+fi
+
+CMAKE_BUILD_DIR="${SOURCE_DIR}/cmake_build"
 DIR_GCNO="${CMAKE_BUILD_DIR}"
 DIR_UNITTEST="${INSTALL_PREFIX}/unittest"
 
