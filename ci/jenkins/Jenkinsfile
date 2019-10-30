@@ -35,9 +35,46 @@ pipeline {
                 stage("Run Build") {
                     agent {
                         kubernetes {
+                            cloud 'build-kubernetes'
                             label 'build'
                             defaultContainer 'jnlp'
-                            yamlFile 'ci/jenkins/pod/milvus-build-env-pod.yaml'
+                            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: milvus-build-env
+  labels:
+    app: milvus
+    componet: build-env
+spec:
+  containers:
+  - name: milvus-build-env
+    image: registry.zilliz.com/milvus/milvus-build-env:v0.5.0-ubuntu18.04
+    env:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    command:
+    - cat
+    tty: true
+    resources:
+      limits:
+        memory: "32Gi"
+        cpu: "8.0"
+        nvidia.com/gpu: 1
+      requests:
+        memory: "16Gi"
+        cpu: "4.0"
+  - name: milvus-mysql
+    image: mysql:5.6
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: 123456
+    ports:
+    - containerPort: 3306
+      name: mysql
+"""
                         }
                     }
 
@@ -77,7 +114,30 @@ pipeline {
                         kubernetes {
                             label 'publish'
                             defaultContainer 'jnlp'
-                            yamlFile 'ci/jenkins/pod/docker-pod.yaml'
+                            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: publish
+    componet: docker
+spec:
+  containers:
+  - name: publish-images
+    image: registry.zilliz.com/library/docker:v1.0.0
+    securityContext:
+      privileged: true
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
                         }
                     }
 
@@ -99,7 +159,29 @@ pipeline {
                         kubernetes {
                             label 'dev-test'
                             defaultContainer 'jnlp'
-                            yamlFile 'ci/jenkins/pod/testEnvironment.yaml'
+                            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: milvus
+    componet: test-env
+spec:
+  containers:
+  - name: milvus-test-env
+    image: registry.zilliz.com/milvus/milvus-test-env:v0.1
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: kubeconf
+      mountPath: /root/.kube/
+      readOnly: true
+  volumes:
+  - name: kubeconf
+    secret:
+      secretName: test-cluster-config
+"""
                         }
                     }
 
