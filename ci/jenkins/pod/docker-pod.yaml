@@ -6,7 +6,7 @@ metadata:
     componet: docker
 spec:
   containers:
-  - name: publish-docker
+  - name: publish-images
     image: registry.zilliz.com/library/docker:v1.0.0
     securityContext:
       privileged: true
