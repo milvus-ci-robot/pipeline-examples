@@ -1,6 +1,9 @@
 container('publish-images') {
     timeout(time: 15, unit: 'MINUTES') {
-        dir ("docker/deploy/${OS_NAME}") {
+        dir ("milvus") {
+            checkout([$class: 'GitSCM', branches: [[name: "${SEMVER}"]], userRemoteConfigs: [[url: "https://github.com/milvus-io/milvus.git", name: 'origin', refspec: "+refs/heads/${SEMVER}:refs/remotes/origin/${SEMVER}"]]])
+        }
+        dir ("milvus/docker/deploy/${OS_NAME}") {
             def binaryPackage = "${PROJECT_NAME}-ee-${PACKAGE_VERSION}.tar.gz"
 
             withCredentials([usernamePassword(credentialsId: "${params.JFROG_CREDENTIALS_ID}", usernameVariable: 'JFROG_USERNAME', passwordVariable: 'JFROG_PASSWORD')]) {
