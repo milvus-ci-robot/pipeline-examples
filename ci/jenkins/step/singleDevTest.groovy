@@ -1,5 +1,8 @@
 timeout(time: 60, unit: 'MINUTES') {
-    dir ("tests/milvus_python_test") {
+    dir ("milvus") {
+        checkout([$class: 'GitSCM', branches: [[name: "${SEMVER}"]], userRemoteConfigs: [[url: "https://github.com/milvus-io/milvus.git", name: 'origin', refspec: "+refs/heads/${SEMVER}:refs/remotes/origin/${SEMVER}"]]])
+    }
+    dir ("milvus/tests/milvus_python_test") {
         sh 'python3 -m pip install -r requirements.txt'
         sh "pytest . --alluredir=\"test_out/dev/single/sqlite\" --level=1 --ip ${env.PIPELINE_NAME}-${env.BUILD_NUMBER}-single-gpu-milvus-gpu-engine.milvus.svc.cluster.local"
     }
@@ -16,7 +19,7 @@ timeout(time: 60, unit: 'MINUTES') {
             sh "helm install --wait --timeout 300 --set engine.image.repository=registry.zilliz.com/milvus/engine-ee --set engine.image.tag=${DOCKER_VERSION} --set expose.type=clusterIP --name ${env.PIPELINE_NAME}-${env.BUILD_NUMBER}-single-gpu -f ci/db_backend/mysql_values.yaml --namespace milvus ."
         }
     }
-    dir ("tests/milvus_python_test") {
+    dir ("milvus/tests/milvus_python_test") {
         sh "pytest . --alluredir=\"test_out/dev/single/mysql\" --level=1 --ip ${env.PIPELINE_NAME}-${env.BUILD_NUMBER}-single-gpu-milvus-gpu-engine.milvus.svc.cluster.local"
     }
 }
