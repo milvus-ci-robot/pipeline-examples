@@ -81,7 +81,7 @@ spec:
                             steps {
                                 container('milvus-build-env') {
                                     script {
-                                        sh "git branch"
+                                        sh("printenv")
                                         sh "./ci/jenkins/scripts/test.sh"
                                     }
                                 }
