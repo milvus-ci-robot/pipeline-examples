@@ -35,7 +35,6 @@ pipeline {
                 stage("Run Build") {
                     agent {
                         kubernetes {
-                            cloud 'build-kubernetes'
                             label 'build'
                             defaultContainer 'jnlp'
                             yaml """
@@ -49,7 +48,7 @@ metadata:
 spec:
   containers:
   - name: milvus-build-env
-    image: registry.zilliz.com/milvus/milvus-build-env:v0.5.0-ubuntu18.04
+    image: registry.zilliz.com/milvus/milvus-cpu-build-env:v0.6.0-ubuntu18.04
     env:
     - name: POD_IP
       valueFrom:
@@ -83,144 +82,10 @@ spec:
                             steps {
                                 container('milvus-build-env') {
                                     script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/build.groovy"
+                                        sh "git log --decorate | head -n 1 | sed 's/.*(\(.*\))/\1/'"
+                                        sh "git log --decorate | head -n 1 | sed 's/.*(\(.*\))/\1/' | sed 's=[a-zA-Z]*\/==g'"
+                                        sh "git log --decorate | head -n 1 | sed 's/.*(\(.*\))/\1/' | sed 's=[a-zA-Z]*\/==g' | awk -F", " '{$1=""; print $0}'"
                                     }
-                                }
-                            }
-                        }
-                        stage('Code Coverage') {
-                            steps {
-                                container('milvus-build-env') {
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/coverage.groovy"
-                                    }
-                                }
-                            }
-                        }
-                        stage('Upload Package') {
-                            steps {
-                                container('milvus-build-env') {
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/package.groovy"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage("Publish docker images") {
-                    agent {
-                        kubernetes {
-                            label 'publish'
-                            defaultContainer 'jnlp'
-                            yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    app: publish
-    componet: docker
-spec:
-  containers:
-  - name: publish-images
-    image: registry.zilliz.com/library/docker:v1.0.0
-    securityContext:
-      privileged: true
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-"""
-                        }
-                    }
-
-                    stages {
-                        stage('Publish') {
-                            steps {
-                                container('publish-images'){
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/publishImages.groovy"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage("Deploy to Development") {
-                    agent {
-                        kubernetes {
-                            label 'dev-test'
-                            defaultContainer 'jnlp'
-                            yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    app: milvus
-    componet: test-env
-spec:
-  containers:
-  - name: milvus-test-env
-    image: registry.zilliz.com/milvus/milvus-test-env:v0.1
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: kubeconf
-      mountPath: /root/.kube/
-      readOnly: true
-  volumes:
-  - name: kubeconf
-    secret:
-      secretName: test-cluster-config
-"""
-                        }
-                    }
-
-                    stages {
-                        stage("Deploy to Dev") {
-                            steps {
-                                container('milvus-test-env') {
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/deploySingle2Dev.groovy"
-                                    }
-                                }
-                            }
-                        }
-
-                        stage("Dev Test") {
-                            steps {
-                                container('milvus-test-env') {
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/singleDevTest.groovy"
-                                    }
-                                }
-                            }
-                        }
-
-                        stage ("Cleanup Dev") {
-                            steps {
-                                container('milvus-test-env') {
-                                    script {
-                                        load "${env.WORKSPACE}/ci/jenkins/step/cleanupSingleDev.groovy"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    post {
-                        unsuccessful {
-                            container('milvus-test-env') {
-                                script {
-                                    load "${env.WORKSPACE}/ci/jenkins/step/cleanupSingleDev.groovy"
                                 }
                             }
                         }
