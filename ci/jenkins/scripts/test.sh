@@ -7,5 +7,5 @@ git log --decorate | head -n 1 | sed 's/.*(\(.*\))/\1/' | sed 's/.*, //' | sed '
 if [[ ${BRANCH_NAME} == "PR-*" && -n ${CHANGE_BRANCH} ]];then
     echo "BRANCH_NAME: ${BRANCH_NAME} CHANGE_BRANCH: ${CHANGE_BRANCH}"
 else
-    echo "BRANCH_NAME: ${BRANCH_NAME}"
+    echo "BRANCH_NAME: ${BRANCH_NAME} CHANGE_BRANCH: ${CHANGE_BRANCH}"
 fi
