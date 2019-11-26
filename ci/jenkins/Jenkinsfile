@@ -84,7 +84,7 @@ spec:
                                     script {
                                         sh "git log --decorate | head -n 1 | sed 's/.*(\\(.*\\))/\\1/'"
                                         sh "git log --decorate | head -n 1 | sed 's/.*(\\(.*\\))/\\1/' | sed 's=[a-zA-Z]*\\/==g'"
-                                        sh "git log --decorate | head -n 1 | sed 's/.*(\\(.*\\))/\\1/' | sed 's=[a-zA-Z]*\\/==g' | awk -F", " '{$1=""; print $0}'"
+                                        sh "git log --decorate | head -n 1 | sed 's/.*(\\(.*\\))/\\1/' | sed 's=[a-zA-Z]*\\/==g' | awk -F\", \" '{$1=\"\"; print $0}'"
                                     }
                                 }
                             }
